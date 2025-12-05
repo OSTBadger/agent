@@ -4,7 +4,7 @@ def write_file(working_directory, file_path, content):
     file_location = abs_working + '/' +file_path 
     print(file_location)
     if not os.path.abspath(file_location).startswith(abs_working):
-        return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
+        return f'Error: Cannot write "{file_path}" as it is outside the permitted working directory'
     # Check if file exists if not create it
     try:
         with open(file_location, "w") as f:
