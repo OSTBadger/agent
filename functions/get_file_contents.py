@@ -1,0 +1,20 @@
+import os
+from config import CHAR_LIMIT
+
+
+def get_file_content(working_directory, file_path):
+    try:
+        abs_working = os.path.abspath(working_directory)
+        file_location = abs_working + '/' +file_path 
+        if not os.path.abspath(file_location).startswith(abs_working):
+            return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
+        if not os.path.isfile(file_location):
+            return f'Error: File not found or is not a regular file: "{file_path}"'
+        contents =  ''
+        with open(file_location) as f:
+            contents = ''.join(f.readlines())
+        if len(contents) > CHAR_LIMIT:
+            contents = contents[:CHAR_LIMIT] + f'[...File "{file_path}" truncated at 10000 characters]'
+        return contents
+    except Exception as e:
+        return f'Error {e}'
