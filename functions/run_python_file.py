@@ -32,8 +32,8 @@ def run_python_file(working_directory, file_path, args=[]):
         return f'Error: File "{file_path}" not found.'
     if not file_location.endswith('.py'):
         return f'Error: "{file_path}" is not a Python file.'
-    # Run python file, timeout 30s,capture stdout and stderr,set working dir, pass args
     
+    # Run python file, timeout 30s,capture stdout and stderr,set working dir, pass args
     cmd_list =["python",file_location]
     if args:
         for ar in args:

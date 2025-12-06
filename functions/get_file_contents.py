@@ -29,7 +29,7 @@ def get_file_content(working_directory, file_path):
         with open(file_location) as f:
             contents = ''.join(f.readlines())
         if len(contents) > CHAR_LIMIT:
-            contents = contents[:CHAR_LIMIT] + f'[...File "{file_path}" truncated at 10000 characters]'
+            contents = contents[:CHAR_LIMIT] + f'[...File "{file_path}" truncated at {CHAR_LIMIT} characters]'
         return contents
     except Exception as e:
         return f'Error {e}'
