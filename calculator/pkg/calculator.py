@@ -8,9 +8,10 @@ class Calculator:
             "*": lambda a, b: a * b,
             "/": lambda a, b: a / b,
         }
+        # Changed precedence: + and - now have lower precedence than * and /
         self.precedence = {
-            "+": 3,
-            "-": 3,
+            "+": 1,  # Changed from 3 to 1
+            "-": 1,  # Changed from 3 to 1
             "*": 2,
             "/": 2,
         }
