@@ -30,7 +30,7 @@ def main():
     messages = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
 
     # Send request to Gemini
-    resp = client.models.generate_content(model="gemini-2.0-flash-001",
+    resp = client.models.generate_content(model="gemini-2.5-flash-lite",
                                         contents=messages,
                                         config=types.GenerateContentConfig(system_instruction=system_prompt,tools=[available_functions]))
     if resp.usage_metadata == None:

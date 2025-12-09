@@ -27,7 +27,10 @@ def call_function(function_call_part, verbose=False):
                         ],
                         )
         case 'get_files_info':
-            function_result = get_files_info(working_directory,function_args["directory"])
+            if 'directory' in function_args:
+                function_result = get_files_info(working_directory,function_args["directory"])
+            else:
+                function_result = get_files_info(working_directory)
             return types.Content(
                 role="tool",
                 parts=[
