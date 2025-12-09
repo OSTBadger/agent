@@ -28,31 +28,43 @@ def main():
     args = parser.parse_args()
     user_prompt = args.prompt
     messages = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
-
+    verbose = args.verbose
     # Send request to Gemini
-    resp = client.models.generate_content(model="gemini-2.5-flash-lite",
-                                        contents=messages,
-                                        config=types.GenerateContentConfig(system_instruction=system_prompt,tools=[available_functions]))
-    if resp.usage_metadata == None:
-        raise RuntimeError("API Request Failed")
-    if args.verbose:
-        print(f'User prompt: {user_prompt}')
-        print(f"Prompt tokens: {resp.usage_metadata.prompt_token_count+1}\nResponse tokens: {resp.usage_metadata.candidates_token_count}")
-        print("Response:")
-    #Print function calls
-    if len(resp.function_calls):
-        contents = []
-        for item in resp.function_calls:
-            # Run the actual function
-            content = call_function(item)
-            if content.parts[0].function_response.response:
-                contents.append(content)
-                if args.verbose:
-                    print(f"-> {content.parts[0].function_response.response}")
-            else:
-                raise Exception('No parts')
-
-    print(resp.text)
+    try:
+        for i in range(20):
+            resp = client.models.generate_content(model="gemini-2.5-flash",
+                                                contents=messages,
+                                                config=types.GenerateContentConfig(system_instruction=system_prompt,tools=[available_functions]))
+            if resp.text != None and not resp.function_calls:
+                print(f"Response:\n{resp.text}")
+                break
+            if resp.candidates:
+                if type(resp.candidates) is list:
+                    for candidate in resp.candidates:
+                        messages.append(candidate.content)
+            if resp.usage_metadata == None:
+                raise RuntimeError("API Request Failed")
+            if verbose:
+                print(f'User prompt: {user_prompt}')
+                print(f"Prompt tokens: {resp.usage_metadata.prompt_token_count+1}\nResponse tokens: {resp.usage_metadata.candidates_token_count}")
+            #Print function calls
+            if len(resp.function_calls):
+                contents = []
+                for item in resp.function_calls:
+                    # Run the actual function
+                    content = call_function(item)
+                    if content.parts[0].function_response.response:
+                        contents.append(content.parts[0])
+                        if verbose:
+                            print(f"-> {content.parts[0].function_response.response}")
+                    else:
+                        raise Exception('No parts')
+                messages.append(types.Content(parts=contents,role='user'))
+            
+        
+        
+    except Exception as e:
+        print(f"Error: {e}")
 
     
 if __name__ == "__main__":
