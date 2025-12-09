@@ -31,42 +31,45 @@ def main():
     verbose = args.verbose
     # Send request to Gemini
     try:
+        #Limit to 20 to prevent infinite calls
         for i in range(20):
-            resp = client.models.generate_content(model="gemini-2.5-flash",
+            resp = client.models.generate_content(model="gemini-2.5-flash-lite",
                                                 contents=messages,
                                                 config=types.GenerateContentConfig(system_instruction=system_prompt,tools=[available_functions]))
-            if resp.text != None and not resp.function_calls:
-                print(f"Response:\n{resp.text}")
-                break
-            if resp.candidates:
-                if type(resp.candidates) is list:
-                    for candidate in resp.candidates:
-                        messages.append(candidate.content)
             if resp.usage_metadata == None:
                 raise RuntimeError("API Request Failed")
             if verbose:
                 print(f'User prompt: {user_prompt}')
                 print(f"Prompt tokens: {resp.usage_metadata.prompt_token_count+1}\nResponse tokens: {resp.usage_metadata.candidates_token_count}")
-            #Print function calls
+            if resp.candidates:
+                for candidate in resp.candidates:
+                    messages.append(candidate.content)
+            if not resp.function_calls:
+                print(f"Response:\n{resp.text}")
+                break
+            # Make function Calls based on schema
             if len(resp.function_calls):
                 contents = []
                 for item in resp.function_calls:
                     # Run the actual function
                     content = call_function(item)
+                    # if a function call generated a response append to converstation
+                    if (
+                        not content.parts
+                        or not content.parts[0].function_response
+                    ):
+                        raise Exception("empty function call result")
                     if content.parts[0].function_response.response:
                         contents.append(content.parts[0])
                         if verbose:
                             print(f"-> {content.parts[0].function_response.response}")
                     else:
                         raise Exception('No parts')
+                    
                 messages.append(types.Content(parts=contents,role='user'))
-            
-        
-        
     except Exception as e:
         print(f"Error: {e}")
 
-    
 if __name__ == "__main__":
     main()
 

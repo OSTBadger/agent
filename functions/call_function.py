@@ -4,7 +4,7 @@ from functions.write_file import write_file
 from functions.run_python_file import run_python_file
 from google.genai import types
 
-# Plumbling for handling genai function calls and linking them to functions
+# Plumbling for functions
 def call_function(function_call_part, verbose=False):
     function_name = function_call_part.name
     function_args = function_call_part.args
